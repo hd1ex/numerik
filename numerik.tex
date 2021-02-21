@@ -1,0 +1,493 @@
+\documentclass[a4paper]{article}
+\usepackage[a4paper, margin=1.5cm]{geometry}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[ngerman]{babel}
+\usepackage{amsmath, amssymb, amsthm}
+\usepackage{csquotes}
+\usepackage{empheq} % Hervorhebung von Gleichungen, Teil vom Bündel »mathtools«
+\usepackage{setspace}
+
+\onehalfspacing             % anderthalbfacher Zeilenabstand
+%\doublespacing              % doppelter Zeilenabstand
+
+\setlength{\parindent}{0pt} % Kein Einzug bei neuem Absatz
+
+\newcommand{\set}[1]{\{ #1 \}}
+
+\title{
+    \textbf{Zusammenfassung Numerik}
+    \\
+    \large
+    Dies ist eine Zusammenfassung des Skripts der Vorlesung
+    \\
+    \emph{Numerische Mathematik für die Fachrichtungen Informatik und
+    Ingenieurwesen} von Daniel Weiß.
+}
+\author{Alexander Sommer}
+
+\begin{document}
+
+\maketitle
+
+\tableofcontents
+
+\newpage
+
+\section{Direkte Lösungsverfahren für lineare Gleichungssysteme}
+
+\subsection{LR-Zerlegung}
+
+$ A \in \mathbb{R}^{N \times N} $ regulär, $b \in \mathbb{R}^N$.
+Suche $ x \in \mathbb{R}^{N} $, sodass $Ax=b$.
+\\
+Zerlegung $A = LR$ mit $L, R \in \mathbb{R}^{N \times N}$.
+
+\begin{itemize}
+    \item \enquote{Schlaues Gaußen} führt zu unterer und oberer Dreiecksmatrix
+    (mit $\frac{1}{3}N^3$ Operationen).
+    \item Ist $A$ \emph{nicht} positiv definit, so braucht die LR-Zerlegung
+    zusätzlich noch Zeilenpermutationen $P \in \set{0, 1}^{N \times N} $, 
+    also $PA = LR$.
+    \item Löse LGS dann mit $Ly = Pb$ und $Rx = y$ durch Vorwärts- und
+    Rückwärtssubstitution (je ca. $\frac{1}{2}N^2$ Operationen).
+    \item $L$ hat auf der Diagonalen Einsen (normiert).
+\end{itemize}
+
+\textbf{Berechnung} mittels \emph{Gauß-Elimination mit Spaltenpivotwahl}:
+\\
+Betrachte Spalten $i \in \set{1..N}$ von $A = a_{i, j}$ und wende an
+\begin{enumerate}
+    \item Betrachte Zeilen $i..N$.
+    \item Tausche Zeile mit betragsmäßig größtem Element in der $i$-ten Spalte
+    mit der $i$-ten Zeile (tausche sowohl in $A$, als auch in Darstellung von
+    $P$).
+    \item Eliminiere die $i$-ten Elemente der $z = i+1..N$-ten Zeile per
+    Zeilenaddition mit Faktor $p_z \in \mathbb{R}$.
+    \item Setze $l_{z, i} = -p_z$ (Beachte \emph{negierter} Wert!)
+    \item Setze $r_{i, j} = a_{i, j}$ mit $(j \in {i..N})$
+\end{enumerate}
+
+\subsection{Cholesky-Zerlegung}
+
+$ A \in \mathbb{R}^{N \times N} $ regulär und \emph{spd}, $b \in \mathbb{R}^N$.
+Suche $ x \in \mathbb{R}^{N} $, sodass $Ax=b$.
+\\
+Zerlegung $A = LL^T$ mit $L \in \mathbb{R}^{N \times N}$.
+
+\begin{itemize}
+    \item Algorithmus führt zu unterer Dreiecksmatrix $L$
+    (mit $\frac{1}{6}N^3$ Operationen).
+    \item Löse LGS dann mit $Ly = Pb$ und $L^Tx = y$ durch Vorwärts- und
+    Rückwärtssubstitution (je ca. $\frac{1}{2}N^2$ Operationen).
+    \item Algorithmus schlägt fehl, wenn $A$ nicht \emph{spd} (also auch zum
+    Testen auf \emph{spd}-heit sinnvoll)
+\end{itemize}
+
+\textbf{Berechnung} induktiv:
+\\
+$\bf{N = 1}$: $a = \sqrt{a}*\sqrt{a}$ für $a > 0$
+\\
+$\bf{N + 1}$: $A = 
+\begin{pmatrix}
+    A_{11}   & a_{21} \\
+    a_{21}^T & a_{22}
+\end{pmatrix}$,
+$A_{11} = L_{11}L_{11}^T \in \mathbb{R}^{N \times N}$,
+$a_{21} \in \mathbb{R}^{N}$,
+$a_{22} \in \mathbb{R}$
+
+\vspace{1em}
+Löse durch Ausmultiplizieren.
+\vspace{1em}
+
+$A = $
+$\begin{pmatrix}
+    A_{11}   & a_{21} \\
+    a_{21}^T & a_{22}
+\end{pmatrix}$
+=
+$\begin{pmatrix}
+    L_{11}   &  \\
+    l_{21}^T & l_{22}
+\end{pmatrix}$
+$\begin{pmatrix}
+    L_{11}^T & l_{21} \\
+             & l_{22}
+\end{pmatrix}$
+=
+$LL^T$
+
+\vspace{1em}
+
+Dadurch lassen sich die folgenden Gleichungen extrahieren:
+\begin{enumerate}
+    \item $L_{11}l_{21} = a_{21}$
+    (Vorwärtssubstitution zur Berechnung von $l_{21}$).
+    \item $a_{22} = l_{21}^T l_{21} + l_{22}^2$,
+    also $l_{22} = \sqrt{a_{22} - l_{21}^T l_{21}}$.
+\end{enumerate}
+
+\subsection{QR-Zerlegung}
+
+$ A \in \mathbb{R}^{M \times N} $, $M \ge N$, $Rang(A) = N$,
+$b \in \mathbb{R}^M$.
+Suche $ x \in \mathbb{R}^{N} $, sodass $Ax=b$.
+\\
+\\
+Zerlegung $A = QR$ mit $Q \in \mathbb{R}^{M \times M}$, $QQ^T=I_M$
+\\
+\hspace{4em}
+und $R = \begin{pmatrix}\bar{R}\\0\end{pmatrix} \in \mathbb{R}^{M \times N}$
+$\bar{R} \in \mathbb{R}^{N \times N}$ obere Dreiecksmatrix. 
+
+\begin{itemize}
+    \item Berechne Matrizen $Q$ und $R$ durch
+    Householder-Transformationen mit $A = QR$.
+    \item Aufwand ist $\frac{2}{3} N^3$ im Fall $M \approx N$
+    \item Löse LGS mit $Qc = b$ und $Rx = c$
+    mit $c = Q^T b$ bzw. durch Rückwärtssubstitution.
+    \item Algorithmus besonderes stabil, aber braucht ca. doppelt so viele
+    Operationen wie die Gauß-Elimination.
+\end{itemize}
+
+Die Berechnung erfolgt mittels $N$ Householder-Transformationen
+$Q_N \dots Q_2 Q_1A = R$ und $Q = Q_1 \dots Q_N$.
+\\
+$a^1 \in \mathbb{R}^M \setminus \set{0}$ ist die erste Spalte von
+$A \in \mathbb{R}^{M \times N}$ und $Q_1 = I_M - 2w^1(w^1)^T$ die
+Householder-Transformation mit $Q_1 a^1 = r_11 e^1 \in \mathbb{R}^M$
+\dots (TODO).
+
+\section{Kondition linearer Gleichungssysteme}
+
+\subsection{Matrixnormen}
+
+Varianten:
+\begin{itemize}
+    \item $||A|| = \sup\limits_{x \neq 0} \frac{||Ax||}{||x||}$
+    (zugehörige Matrixnorm zu $||\cdot||$ auf $\mathbb{R}^N$)
+    \item $||A||_1 = \max\limits_{m=1,...,N} \sum_{n=1}^N |a_{nm}|$
+    (Spaltensummennorm)
+    \item $||A||_2 = \sqrt{\textrm{größter EW von}~A^T A}$
+    (Spektralnorm)
+    \item $||A||_\infty = \max\limits_{n=1,...,N} \sum_{m=1}^N |a_{nm}|$
+    (Zeilensummennorm)
+\end{itemize}
+
+Eigenschaften:
+\begin{itemize}
+    \item $||Ax|| \le ||A||\cdot||x||$
+    \item $||I_n|| = 1$
+    \item $||AB|| \le ||A||\cdot||B||$
+\end{itemize}
+
+\subsection{Konditionszahl}
+
+$cond(A) = ||A|| \cdot ||A^{-1}||$
+
+\vspace{1em}
+Eigenschaften:
+\begin{itemize}
+    \item $1 = ||I_n|| = ||AA^{-1}|| \le ||A|| \cdot ||A^{-1}|| = cond(A)$
+    \item $cond(A) = cond(\alpha A)$, $\alpha \in \mathbb{R} \setminus \{0\}$
+    \item $cond(A) = \frac{\max_{||y|| = 1} ||Ay||}{\min_{||z|| = 1} ||Az||}$
+\end{itemize}
+
+\subsection{Lineare Ausgleichsrechnung}
+
+\textbf{Lineares Ausgleichsproblem}
+
+$A \in \mathbb{R}^{M \times N}$,
+$M \ge N$,
+$b \in \mathbb{R}^M$
+\\
+$||Ax-b||_2 = min!$
+
+\vspace{2em}
+\textbf{Satz 7}
+\\
+QR-Zerlegung von A, also $A^T A = $
+$R = \begin{pmatrix}\bar{R}\\0\end{pmatrix}$
+mit regulärem $\bar{R} \in \mathbb{R}^{N \times N}$
+\\
+Dann ist $x = \bar{R}^{-1} c$ ist Lösung vom linearen Ausgleichsproblem mit
+$Q^T b = \begin{pmatrix}c\\d\end{pmatrix}$
+\\
+Für die Norm des Residuums $r = Ax - b$ gilt: $||r||_2 = ||d||_2$ 
+
+\subsection{Singulärwertzerlegung}
+
+Zu einer Matrix $A = \mathbb{R}^{M \times N}$ mit Rang R gibt es orthogonale
+Matrizen $U \in \mathbb{R}^{M \times M}$, $V \in \mathbb{R}^{N \times N}$ mit
+\\
+$U^T A V = \Sigma = \begin{pmatrix}\Sigma_R & 0 \\ 0 & 0\end{pmatrix} \in
+\mathbb{R}^{M \times N}$,
+\hspace{2em}
+$\Sigma_R = diag(\sigma_1, \dots, \sigma_R) \in \mathbb{R}^{R \times R}$
+\\
+wobei $\Sigma_R$ regulär und $\sigma_1 \ge \sigma_2 \ge \dots \ge \sigma_R >
+\sigma_{R + 1} = \dots = \sigma_p = 0$ mit $p = \min\{M, N\}$ heißen die
+Singulärwerte der Matrix A.
+
+\begin{enumerate}
+    \renewcommand\labelenumi{\theenumi)}
+    \item $A = U \Sigma V^T = U \sum\limits_{r = 1}^R \sigma_r e^r
+    (e^r)^\intercal V^\intercal = \sum\limits_{r = 1}^R \sigma_r u^r
+    (v^r)^\intercal$ (Singulärwertzerlegung von A).
+
+    \item Für $M \ge N$ ist $x = \sum\limits_{r = 1}^R \frac{(u^r)^\intercal
+    b}{\sigma_r} v^r$ die Lösung des linearen Ausgleichsproblems $||Ax - B||_2 =
+    \min!$, $||x||_2 = \min!$
+
+    \item Es gilt $||A||_2 = \sigma_1$, \hspace{2em} $||A||_F = \sqrt{\sigma_1^2
+    + \dots + \sigma_R^2} := \sqrt{\textrm{Spur}(A^\intercal A)}$
+    (Frobeniusnorm)
+ 
+    \item Für $1 \le k \le R$ hat die Matrix $A_k := \sum\limits_{r = 1}^k
+    \sigma_r u^r (v^r)^\intercal$ den Rang k und ist unter allen Matrizen mit
+    Rang k bzgl. der Frobeniusnorm die beste Approximation von A
+    (\emph{Bestapproximation}; gilt auch für die Spektralnorm).
+
+    \item Neben den linearen Ausgleichsproblemen findet die
+    Singulärwertzerlegung auch noch Anwendung in der Bildverarbeitung
+    (Kompression, Filterung), dem Machine Learning (Textmining, Latent semantic
+    indexing) und bei Recommender-Sytemen.
+\end{enumerate}
+
+\section{Iterative Verfahren für nichtlineare Gleichungssysteme}
+
+\textbf{Problem:} Funktion $f: D \subset \mathbb{R}^N \to \mathbb{R}^N$, finde $x^*
+\in D$ mit $f(x^*) = 0_N \in \mathbb{R}^N$
+
+\textbf{Bemerkungen:}
+\begin{itemize}
+    \item Gleichungen können in die obere Form umgeformt werden bzw. sind in
+    vielen Anwendungen Teilprobleme
+    \item Gleichungen können keine, eine, mehrere oder unendlich viele Lösungen
+    haben
+    \item Bei linearen Gleichungen können \enquote{exakte} Lösungen angegeben
+    werden, hier nur Näherungen
+    \begin{itemize}
+        \item Lineare Gleichung $\to$ Lösung mit Rundungsfehler
+        \item Nichtlineare Gleichung $\to$ Lösung mit Rundungsfehler und
+        Approximationsfehler
+    \end{itemize}
+\end{itemize}
+
+\subsection{Newton-Verfahren}
+
+$x^0$ ist in der Nähe der Lösung $x^*$. Wegen Taylor-Entwicklung gilt
+$x^* \approx x^0 - f'(x^0)^{-1}f(x^0)$.
+\\
+Da man die Berechnung der inversen Jakobi-Matrix vermeiden möchte, löst man
+alternativ das lineare Gleichungssystem $f'(x^0)d^0 = -f(x^0)$.
+\\
+Nun kann man $x^1 = x^0 + d^0$ setzen und das Verfahren beliebig oft
+wiederholen.
+
+\begin{samepage}
+\textbf{Algorithmus:}
+\begin{enumerate}
+    \item Wähle Startwert $x^0 \in D$ und Toleranz $\epsilon$. Setze $k = 0$.
+    \item\label{newton2} Löse $f'(x^k)d^k = -f(x^k)$ (LR-Zerlegung) und berechne
+    $x^{k+1} = x^k + d^k$.
+    \item Falls: $(||d^k|| < \epsilon)$: STOPP
+          \\Erhöhe $k$ um 1 und gehe zu \ref{newton2}.
+\end{enumerate}
+\end{samepage}
+
+\textbf{Anmerkung:} Als Abbruchkriterium sind auch noch andere Varianten
+möglich. Bei $||f(x^k)|| < \epsilon$ sollte man vorsichtig sein, da durch
+Ersetzung von $f$ mit $\lambda f$ das Kriterium beliebig manipuliert werden
+kann.  
+
+\subsection{Konvergenz des Newton-Verfahrens}
+
+\textbf{Informell:} Das Newtonverfahren konvergiert lokal quadratisch für einen
+Startwert $x^0 \in D$, wenn sich dieser in einer bestimmten Kugel um $x^*$ mit
+dem Radius $\rho$ befindet und die Jakobi-Matrix ausgewertet an der Nullstelle
+$x^*$ regulär ist (siehe Satz 8 im Kapitel 3.3 des Skripts). Die Kunst liegt nun
+darin, einen solchen Startwert in dieser (unbekannten) Kugel zu finden.
+
+\textbf{Bemerkungen:}
+\begin{itemize}
+    \item Für z. B. $f(x) = x^3$ gilt Satz 8 wegen $f'(x^*) = 0$ nicht, hier hat
+    das Newtonverfahren nur lineare Konvergenz.
+\end{itemize}
+
+\subsection{Vereinfachtes Newton-Verfahren}
+
+Beim vereinfachten Newtonverfahren wird die Ableitung durch eine konstante
+Matrix $A \approx f'(x^0)$ ersetzt. 
+\begin{itemize}
+    \item Dadurch muss nur eine Auswertung und eine LR-Zerlegung berechnet
+    werden
+    \item Die Konvergenz ist nur noch \textbf{linear} 
+    \item Entspricht Fixpunktoperation $F(x) = x - A^{-1}f(x)$
+    \item Siehe Satz 9 im Kapitel 3.4 des Skripts
+\end{itemize}
+
+\subsection{Weitere Anwendungen des Newton-Verfahrens}
+
+\begin{itemize}
+    \item Globale Minimierung
+    \item Nichtlineare Ausgleichsrechnung
+\end{itemize}
+
+\section{Interpolation und Approximation}
+
+\textbf{Probleme:}
+\begin{enumerate}
+    \item Interpolation: Suche für Stützpunkte $(x_0, f_0), \dots, (x_N, f_N)$
+    eine Funktion $p(x)$ mit $p(x_n) = f_n$.
+    \item Approximation: Suche für eine gegebene Funktion $f: [a, b] \to
+    \mathbb{R}$ eine möglichst einfach auszuwertende Funktion $p: [a, b] \to
+    \mathbb{R}$, so dass $f - p$ \enquote*{klein} ist, z. B.
+    \begin{enumerate}
+        \item $\int_a^b(f(x) - p(x))^2dx = \min!$
+        \item $\max\limits_{x \in [a, b]} |f(x) - p(x)| = \min!$
+        \item Zusätzlich zu (a) oder (b): für endlich viele Punkte $f(x) = p(x)$
+        (Interpolation).
+    \end{enumerate}
+\end{enumerate}
+
+\subsection{Weierstraßscher Approximationssatz}
+
+\textbf{Satz 10:} Gegeben eine stetige Funktion $f: [a, b] \to \mathbb{R}$.
+\\
+Dann existiert für jedes $\epsilon > 0$ ein $N \in \mathbb{N}$ und ein Polynom
+$p: [a, b] \to \mathbb{R}$ vom Grad N mit $\max\limits_{x \in [a, b]} |f(x) -
+p(x)| \le \epsilon$.
+
+\subsection{Polynominterpolation}
+
+\textbf{Eindeutigkeit:}
+Ein Polynom vom Grad $\le N$ ist ist durch Vorgabe von $N + 1$ Punkten (an
+paarweise verschiedenen Stellen) eindeutig bestimmt.
+
+\textbf{Existenz:}
+Lagrange-Polynome $L_n(x) = \prod\limits_{m=0, m \ne n}^N \frac{x - x_m}{x_n -
+x_m}$ haben die Eigenschaft
+\begin{empheq}[left={L_n(x_m)=\empheqlbrace}]{alignat*=2}
+    & 0,\ && \text{falls}\ n \ne m \\
+    & 1,\ && \text{falls}\ n = m
+\end{empheq}
+
+(der Zähler ist für den oberen Fall zuständig und der Nenner für die Normierung
+des unteren Falls).
+\\
+Damit findet sich die Lösung $p(x) = \sum\limits_{n = 0}^N f_n L_n(x)$ für das
+Interpolationsproblem.
+
+\textbf{Satz 11:} Zu $N + 1$ Stützpunkten mit paarweise verschiedenen
+Stützstellen existiert genau ein Interpolationspolynom vom Grad $\le N$.
+
+\subsubsection{Kondition des Problems}
+
+Stützpunkte $(x_n, f_n)$ und gestörte Stützpunkte $(x_n, \tilde{f}_n)$.
+\\
+Dann gilt $|p(x) - \tilde{p}(x)| \le \max\limits_{m = 0, \dots, N} |f_m -
+\tilde{f}_m| \sum\limits_{n = 0}^N |L_n(x)|$.
+
+\textbf{Definition 6:} Lebesgue-Konstante $\Lambda_N := \max\limits_{x \in [a, b]} \sum\limits_{n=
+0}^N |L_n(x)|$
+
+Damit gilt (Satz 12): $\max\limits_{x \in [a, b]} |p(x) - \tilde{p}(x)| \le
+\Lambda_N \max\limits_{n = 0, \dots, N} |f_n - \tilde{f}_n|$
+
+\subsubsection{Newton-Darstellung des Interpolationspolynoms}
+
+\textbf{Satz 13:} Zu $N + 1$ Stützpunkten $(x_n, f_n)$, $n = 0, \dots, N$ mit
+paarweise verschiedenen Stützstellen $x_n$ lässt sich das Interpolationspolynom
+$P(x)$ vom Grad $\le N$ darstellen durch \\
+$p(x) = f_{0, 0} + f_{0, 1} (x - x_0) + \dots + f_{0, N} (x - x_0) \cdot \ldots
+\cdot (x - x_{N - 1})$
+\\
+wobei die dividierten Differenzen gegeben sind durch
+\\
+$f_{n, n} = f_n$, \hspace{7em} $n = 0, \ldots, N$
+\\
+$f_{n, k} = \frac{f_{n, k - 1} - f_{n + 1, k}}{x_n - x_k}$, \hspace{2.5em} $0
+\le n < k \le N$.
+
+\subsubsection{Das Restglied der Polynominterpolation}
+
+TODO: Satz 14 (über den Interpolationsfehler).
+
+\subsubsection{Tschebyscheff-Interpolation}
+
+TODO
+
+\subsection{Kubische Spline-Interpolation}
+
+\textbf{Definition 7 (Informell):} Ein kubisch interpolierender Spline ist eine
+$C^2$-Funktion $s: [a, b] \to \mathbb{R}$, welche eine Funktion durch kubische
+Polynome zwischen den Stützpunkten interpoliert. Die Polynome sind an den
+Stützpunkten \textbf{glatt} miteinander verbunden, also deren 1. und 2.
+Ableitungen sind dort gleich.
+
+\begin{samepage}
+\textbf{Definition 8:} Ein solches s heißt im Fall
+\begin{enumerate}
+    \item $s'(a) = v_0$ und $s'(b) = v_N$ für vorgegebene $v_0, v_N$
+    \textbf{eingespannter}
+    \item $s''(a) = s''(b) = 0$ \textbf{natürlicher}
+    \item $s'(a) = s'(b)$ und $s''(a) = s''(b)$ \textbf{periodischer}
+    (ergibt nur für $y_0 = y_N$ Sinn)
+\end{enumerate}
+interpolierender kubischer Spline.
+\end{samepage}
+
+\subsubsection{Konstruktion}
+
+Die Glattheitsforderung in Definition 7 resultiert in ein Gleichungssystem mit
+$2N$ Unbekannten und $2N - 2$ Bedingungen. Mit den zusätzlichen 2 Forderungen
+aus einer Option von Definition 8 kommen noch 2 weitere Bedingungen dazu.
+
+Im Skript ist eine Herleitung eines solchen LGS für eingespannte kubische
+Splines. 
+
+\subsubsection{Kondition}
+
+Der eingespannte \enquote{Lagrange}-Spline: $l_n(x_m) = \delta_{nm}$ und
+$l_n'(a) = l_n'(b) = 0$.
+
+\vspace{1em}
+
+$|s(x) - \tilde{s}(x)| \le \Lambda_N \max\limits_{m = 0, \dots, N} |y_m -
+\tilde{y}_m|$ mit $\Lambda_N := \max_{x \in [a, b]} \sum_{n = 0}^N |l_n(x)|$.
+
+\vspace{1em}
+
+\textbf{Satz 21:} Bei äquidistanter Unterteilung gilt $\Lambda_N \le 2$ für alle
+$N \in \mathbb{N}$.
+
+\section{Numerische Integration}
+
+\textbf{Problem:} Berechne für gegebene Funktion $f: [a, b] \to \mathbb{R}$ das
+Riemann-Integral $I(f) := \int_a^b f(x) dx$.
+
+\textbf{Eigenschaften:}
+\begin{enumerate}
+    \item $I$ existiert für stückweise stetige Funktionen, hier werden nur
+    \textbf{stetige} Funktionen betrachtet.
+    \item I ist \textbf{additiv} bezüglich einer Zerlegung des
+    Integrationsintervalls: $\int_a^b f(x) dx$ = $\int_a^c f(x) dx$ + $\int_c^b
+    f(x) dx$.
+    \item I ist \textbf{linear}:
+    $I(\lambda f + \mu g) = \lambda I(f) + \mu I(g)$, mit $f, g \in
+    C(\mathbb{R})$ und $\lambda, \mu \in \mathbb{R}$.
+    \item $I$ ist \textbf{monoton}: Falls $f \ge g$ auf $[a, b]$, dann auch
+    $\int_a^b f(x) dx \ge \int_a^b g(x) dx$.
+    \\
+    Zusätzlich folgt aus der Monotonie
+    $|\int_a^b f(x) dx| \le \int_a^b |f(x)| dx$.
+\end{enumerate}
+
+\subsection{Kondition des Problems}
+
+\textbf{Definition:} Norm $||f||_1 := \int_a^b |f(x)| dx = I(|f|)$.
+
+\end{document}
