@@ -570,4 +570,51 @@ Riemann-Integral $I(f) := \int_a^b f(x) dx$.
 
 \textbf{Definition:} Norm $||f||_1 := \int_a^b |f(x)| dx = I(|f|)$.
 
+\subsection{Quadraturformeln}
+
+$\int_a^b f(x) dx \approx (b - a) \sum\limits_{K = 1}^s b_k f(a + c_k(b - a))$.
+
+Quadraturformel ist also durch $(b_k, c_k)_{k = 1, \dots, s}$ bestimmt.
+
+\begin{itemize}
+    \item Eine Quadraturformel approximiert das Integral durch gewichtete Mittel
+    der Stützpunkte.\\ $b_k$ sind dabei die Gewichte und $c_k$ bestimmen die
+    Stützstellen.
+    \item $a +  x (b - a)$ bildet das Interval $[a, b]$ auf $[0, 1]$ ab.
+    \item Es gilt $\sum\limits_{k = 1}^s b_k = 1$ (konstante Integranden).
+\end{itemize}
+
+
+\subsubsection{Ordnung einer Quadraturformel}
+
+Die Approximationsgüte einer Quadraturformel wird durch die sogenannte Ordnung
+beschrieben.
+
+\textbf{Definition 9:} Eine Quadraturformel $(b_k, c_k)_{k = 1, \dots,s}$
+besitzt die \textbf{Ordnung} p, falls sie exakte Lösungen für alle Polynome vom
+Grad $\le p - 1$ liefert, wobei p maximal ist.
+
+\textbf{Satz 23:} Eine Quadraturformel besitzt genau dann die Ordnung p, falls
+$\frac{1}{q} = \sum\limits_{k = 1}^s b_k c_k^{q - 1}$ für alle $q = 1, \dots, p$
+aber nicht mehr für $q = p + 1$ gilt.
+
+\textbf{Satz 24 (Informell):} Satz 24 sagt aus, dass die Gewichte $b_k$ durch
+die Formel von Satz 23 eindeutig bestimmt ist, wenn dir Ordnung min $s$ sein
+soll.
+
+\subsubsection{Symmetrische Quadraturformeln}
+
+\textbf{Definition 10:} Sind symmetrisch, falls $c_k = 1 - c_{s + 1 -k}$, 
+\hspace{1em}
+$b_k = b_{s + 1 - k}$.
+
+\textbf{Satz 25:} Die Ordnung einer symmetrischen Quadraturformel ist gerade.
+
+\textbf{Satz 27:} Die maximale Ordnung einer Quadraturformel ist 2s.
+
+\textbf{Satz 28 (Gauß-Quadraturformel):} $c_k = \frac{1}{2} (1 + \gamma_k)$
+definiert eine eindeutige Quadraturformel der Ordnung 2s, wobei $\gamma_1,
+\dots, \gamma_s$ die Nullstellen des Legendre-Polynoms vom Grad s sind. Die
+Gewichte $b_k$ sind gemäß Satz 24 eindeutig bestimmt.
+
 \end{document}
