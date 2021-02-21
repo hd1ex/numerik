@@ -20,7 +20,7 @@
     \textbf{Zusammenfassung Numerik}
     \\
     \large
-    Dies ist eine Zusammenfassung des Skripts der Vorlesung
+    Dies ist eine Zusammenfassung des Skripts der KIT-Vorlesung
     \\
     \emph{Numerische Mathematik für die Fachrichtungen Informatik und
     Ingenieurwesen} von Daniel Weiß.
@@ -34,6 +34,84 @@
 \tableofcontents
 
 \newpage
+
+\section{Einführung}
+
+\subsection{Normalisierte Gleitpunktzahlen}
+
+$\mathrm{FL} := \set{ \pm B^e \sum\limits_{l = 1}^{L_m} a_l B^{-l} : e =
+e_\mathrm{min} + \sum\limits_{l = 0}^{L_e - 1} c_l B^l, a_l, c_l \in \set{0,
+\dots, B - 1}, a_1 \ne 0 } \cup \set{0} \subset \mathbb{Q}$.
+
+\begin{itemize}
+    \item $e_\mathrm{max} = e_\mathrm{min} + B^{L_e} - 1$
+    \item $\max \mathrm{FL} = -\min \mathrm{FL} = B^{e_\mathrm{max}} (1 -
+    B^{-L_m})$
+    \item $\min \mathrm{FL}_+ = B^{e_\mathrm{min} - 1}$
+\end{itemize}
+
+\subsubsection{Darstellung reeller Zahlen im Computer}
+
+Reele Zahl $x = \pm B^e \sum\limits_{l = 1}^\infty a_l B^{-l}$,
+\hspace{1em}
+$a_1 \ne 0, a_l \in \set{0, \dots, B - 1}$ 
+
+wird zur Gleitpunktzahl
+
+\begin{empheq}[left={\mathrm{fl}(x) := \pm B^e\empheqlbrace}]{alignat*=2}
+    & \sum_{l = 1}^{L_m} a_l B^{-l},\ && \text{falls}\ a_{L_{m + 1}} <
+    \frac{B}{2}\\
+    & \sum_{l = 1}^{L_m} a_l B^{-l} + B^{-L_m},\ && \text{falls}\ a_{L_{m
+    + 1}} \ge \frac{B}{2}\\
+\end{empheq}
+
+Für den relativen Fehler gilt:
+$\frac{|x - \mathrm{fl}(x)|}{|x|} \le \frac{B^{(1 - L_m)}}{2} =: \mathrm{eps}$
+
+was äquivalent ist zu $\mathrm{fl}(x) = x (1 - \epsilon)$
+\hspace{1em}
+mit $|\epsilon| \le \mathrm{eps}$.
+
+\subsubsection{Gleitpunktrechnung}
+
+\begin{itemize}
+    \item Die Gleitpunktrealisierungen von $+, -, \cdot, /$ sind im Allgemeinen
+    nicht assoziativ.
+    \item eps ist \textbf{die kleinste Gleitpunktzahl, die auf 1 addiert eine
+    andere Gleitpunktzahl ergibt}.
+    \item Für $B = 2$ braucht bei normalisierten Gleitpunktzahlen die erste
+    Nachkommastelle nicht gespeichert werden, da sie immer 1 ist. Beachte dazu
+    auch: Die Zahl 0 wird in der Regel durch einen bestimmten Exponenten
+    codiert. Wir können daher bei doppelter Genauigkeit die 52 Bit der Mantisse
+    tatsächlich auf die Stellen 2 bis 53 verteilen und so eine höhere relative
+    Genauigkeit erreichen. Mit diesem Trick lässt sich sogar die Zahl 1+eps als
+    Maschinenzahl darstellen.
+\end{itemize}
+
+\subsection{Kondition eines Problems}
+
+Die Frage nach der Kondition eines Problems lautet: Wie wirken sich Störungen
+der Eingabedaten auf das Resultat unabhängig vom gewählten Algorithmus aus? Die
+Kondition eines Problems ist ein Maß dafür, wie stark die Abhängigkeit der
+Lösung von den Daten ist, also die unvermeidbare Fehlerverstärkung bei optimalem
+Lösungsverfahren.
+
+\begin{itemize}
+    \item Die Summe zweier Zahlen mit gleichem Vorzeichen ist gut konditioniert.
+    \item Bei der Differenz zweier fast gleich großer Zahlen kommt es zur
+    \textbf{Auslöschung} von vertrauenswürdigen signifikanten Nachkommastellen
+    der Mantisse und rundungsfehlerbehaftete Stellen bilden die vorderen
+    Nachkommastellen der Differenz. Die Addition von x und y mit $x \approx -y$
+    ist also sehr schlecht konditioniert und sollte vermieden werden.
+\end{itemize}
+
+\subsection{Stabilität eines Algorithmus}
+
+Wir nennen ein numerisches Verfahren stabil, wenn Fehler innerhalb des
+Verfahrens \enquote{nicht viel größer} sind als der Einfluss von Störungen der
+Eingabedaten, der unvermeidbar durch die Kondition des Problems gegeben ist.
+Dabei ist \enquote{nicht viel größer} relativ zu verstehen und abhängig von der
+Komplexität des Algorithmus.
 
 \section{Direkte Lösungsverfahren für lineare Gleichungssysteme}
 
@@ -55,6 +133,7 @@ Zerlegung $A = LR$ mit $L, R \in \mathbb{R}^{N \times N}$.
     \item $L$ hat auf der Diagonalen Einsen (normiert).
 \end{itemize}
 
+\begin{samepage}
 \textbf{Berechnung} mittels \emph{Gauß-Elimination mit Spaltenpivotwahl}:
 \\
 Betrachte Spalten $i \in \set{1..N}$ von $A = a_{i, j}$ und wende an
@@ -68,6 +147,7 @@ Betrachte Spalten $i \in \set{1..N}$ von $A = a_{i, j}$ und wende an
     \item Setze $l_{z, i} = -p_z$ (Beachte \emph{negierter} Wert!)
     \item Setze $r_{i, j} = a_{i, j}$ mit $(j \in {i..N})$
 \end{enumerate}
+\end{samepage}
 
 \subsection{Cholesky-Zerlegung}
 
@@ -160,9 +240,9 @@ $A \in \mathbb{R}^{M \times N}$ und $Q_1 = I_M - 2w^1(w^1)^T$ die
 Householder-Transformation mit $Q_1 a^1 = r_11 e^1 \in \mathbb{R}^M$
 \dots (TODO).
 
-\section{Kondition linearer Gleichungssysteme}
+\subsection{Kondition linearer Gleichungssysteme}
 
-\subsection{Matrixnormen}
+\subsubsection{Matrixnormen}
 
 Varianten:
 \begin{itemize}
@@ -183,7 +263,7 @@ Eigenschaften:
     \item $||AB|| \le ||A||\cdot||B||$
 \end{itemize}
 
-\subsection{Konditionszahl}
+\subsubsection{Konditionszahl}
 
 $cond(A) = ||A|| \cdot ||A^{-1}||$
 
@@ -195,7 +275,7 @@ Eigenschaften:
     \item $cond(A) = \frac{\max_{||y|| = 1} ||Ay||}{\min_{||z|| = 1} ||Az||}$
 \end{itemize}
 
-\subsection{Lineare Ausgleichsrechnung}
+\subsubsection{Lineare Ausgleichsrechnung}
 
 \textbf{Lineares Ausgleichsproblem}
 
