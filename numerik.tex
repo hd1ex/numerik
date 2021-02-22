@@ -7,6 +7,7 @@
 \usepackage{amsmath, amssymb, amsthm}
 \usepackage{csquotes}
 \usepackage{empheq} % Hervorhebung von Gleichungen, Teil vom Bündel »mathtools«
+\usepackage[bookmarks]{hyperref}
 \usepackage{setspace}
 
 \onehalfspacing             % anderthalbfacher Zeilenabstand
@@ -570,6 +571,13 @@ Riemann-Integral $I(f) := \int_a^b f(x) dx$.
 
 \textbf{Definition:} Norm $||f||_1 := \int_a^b |f(x)| dx = I(|f|)$.
 
+\textbf{Satz 22 (relative Kondition)}: $f, \tilde{f} \in C([a, b], \mathbb{R})$.
+Dann gilt: $\frac{|I(f) - I(\tilde{f})|}{|I(f)|} \le \mathrm{cond}_1 \frac{|f -
+\tilde{f}|}{|f|}$, mit $\mathrm{cond}_1 := \frac{I(|f|)}{|I(f)|}$.
+
+Das Problem ist schlecht konditioniert, wenn die Funktion stark (um die x-Achse)
+oszilliert, sich die Flächen also gegenseitig auslöschen können.
+
 \subsection{Quadraturformeln}
 
 $\int_a^b f(x) dx \approx (b - a) \sum\limits_{K = 1}^s b_k f(a + c_k(b - a))$.
@@ -580,6 +588,9 @@ Quadraturformel ist also durch $(b_k, c_k)_{k = 1, \dots, s}$ bestimmt.
     \item Eine Quadraturformel approximiert das Integral durch gewichtete Mittel
     der Stützpunkte.\\ $b_k$ sind dabei die Gewichte und $c_k$ bestimmen die
     Stützstellen.
+    \item Die Funktion $f$ wird so gesehen durch ein Polynom approximiert,
+    dessen (gewichtetes) Integral (exakt) durch eine Summe berechnet werden
+    kann.
     \item $a +  x (b - a)$ bildet das Interval $[a, b]$ auf $[0, 1]$ ab.
     \item Es gilt $\sum\limits_{k = 1}^s b_k = 1$ (konstante Integranden).
 \end{itemize}
@@ -616,5 +627,15 @@ $b_k = b_{s + 1 - k}$.
 definiert eine eindeutige Quadraturformel der Ordnung 2s, wobei $\gamma_1,
 \dots, \gamma_s$ die Nullstellen des Legendre-Polynoms vom Grad s sind. Die
 Gewichte $b_k$ sind gemäß Satz 24 eindeutig bestimmt.
+
+\subsection{Quadraturfehler}
+
+$R(g)$ ordnet jeder Funktion $g: [0, 1] \to \mathbb{R}$ den Quadraturfehler zu.
+
+\vspace{1em}
+
+\textbf{Satz 29:} Die Quadraturformel habe die Ordnung p und $g : [0, 1] \to
+\mathbb{R}$ sei q-mal stetig differenzierbar. Dann gilt $R(g) = \int_0^1 K_q(t)
+g^{(q)} (t) dt$, falls $2 \le q \le p$ mit $K_q$ der Peano-Kern.
 
 \end{document}
