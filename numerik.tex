@@ -8,6 +8,7 @@
 \usepackage{csquotes}
 \usepackage{empheq} % Hervorhebung von Gleichungen, Teil vom Bündel »mathtools«
 \usepackage[bookmarks]{hyperref}
+\usepackage{amsmath}
 \usepackage{setspace}
 
 \onehalfspacing             % anderthalbfacher Zeilenabstand
@@ -637,5 +638,112 @@ $R(g)$ ordnet jeder Funktion $g: [0, 1] \to \mathbb{R}$ den Quadraturfehler zu.
 \textbf{Satz 29:} Die Quadraturformel habe die Ordnung p und $g : [0, 1] \to
 \mathbb{R}$ sei q-mal stetig differenzierbar. Dann gilt $R(g) = \int_0^1 K_q(t)
 g^{(q)} (t) dt$, falls $2 \le q \le p$ mit $K_q$ der Peano-Kern.
+
+\section{Eigenwertprobleme}
+
+\textbf{Problem:} Berechnung von Eigenwerten (EW) und Eigenvektoren (EV) einer
+quadratischen Matrix A: $Av = \lambda v$.
+
+Der Ansatz über die Nullstellenbestimmung des charakteristischen Polynoms ist
+schlecht konditioniert und nicht effizient berechenbar.
+
+\subsection{Kondition des Problems}
+
+$A(\varepsilon) = A + \varepsilon C$ mit $c_{mn} \le a_{mn}$.
+
+\textbf{Satz 30:} Sei $\lambda$ ein einfacher EW von A. Für hinreichend kleines
+$\varepsilon$ gilt $\lambda(\varepsilon) = \lambda +  \varepsilon \frac{u^{T} C
+v}{u^{T} v} + O(\varepsilon^2)$, wobei $\lambda(\varepsilon)$ EW von
+$A(\varepsilon)$ ist, $Av = \lambda v$, $u^T A = \lambda u^T$ und $||v||_2 =
+||u||_2 = 1$ gilt. 
+
+\subsection{Vektoriteration}
+
+\textbf{Satz 31:} Für eine symmetrische Matrix $A \in \mathbb{R}^{N \times N}$
+sei ein einfacher Eigenwert $\lambda_1$ betragsmäßig größer als alle anderen.
+Dann konvergiert die Folge von Vektoren $(y^k)_{k \in \mathbb{N}}$ definiert
+durch die Vektoriteration $y_k = \frac{x^k}{||x^k||_2}$, $x^{k + 1} = A y^k$
+gegen einen normierten Eigenvektor $v^1$ von $A$ zum Eigenwert $\lambda_1$,
+falls $x^0$ nicht senkrecht auf dem Eigenraum $\langle\set{v^1}\rangle$ steht.
+
+\subsubsection{Inverse Vektoriteration}
+
+$\lambda_*$ ist Schätzung von $\lambda_n$, welches nahe 0 ist.
+
+Dann lässt sich die Vektoriteration invers durchführen, indem man das
+resultierende LGS löst: $y_k = \frac{x^k}{||x^k||_2}$, $A x^{k + 1} = y^k$.
+
+Die Matrix an sich ist zwar schlecht konditioniert, aber die Berechnung der
+Richtung des EV ist gut konditioniert.
+
+\subsubsection{Spektrale Bisektion}
+
+Hier wird ein Beispiel einer inversen Vektoriteration anhand eines
+Graphenproblems gezeigt.
+
+\subsection{QR-Algorithmus zur Eigenwertberechnung}
+
+\textbf{QR-Algorithmus:}
+\begin{enumerate}
+    \item setze $A_0 = A$ und $k = 0$
+    \item\label{qr2} zerlege $A_k = Q_k R_k$ ($QR$-Zerlegung von $A_k$)
+    \item berechne $A_{k + 1} = R_k Q_k$, erhöhe $k$ um 1 und gehe zu \ref{qr2}.
+\end{enumerate}
+
+$A_k$ konvergiert dann zu einer Matrix $R$ mit den Eigenwerten $|\lambda_1| >
+\dots > |\lambda_N|$ in der Diagonalen, falls diese reel sind.
+
+\textbf{Bemerkungen:}
+\begin{itemize}
+    \item Der genannte Algorithmus ist in $O(N^3)$
+    \\\textbf{Idee:} Transformiere $A$ in \emph{Hessebergform} $H$ und nutze die
+    folgenden Eigenschaften:
+    \begin{enumerate}
+        \item Die Form bleibt für alle berechneten Matrizen erhalten.
+        \item Die Transformation in $H$ und der Algorithmus damit sind beide in
+        $O(N^2)$ durchführbar.
+    \end{enumerate}
+    \item Die Konvergenz gegeben durch $\frac{\lambda_2}{\lambda_1},
+    \frac{\lambda_3}{\lambda_2}, \dots, \frac{\lambda_N}{\lambda_{N - 1}}$ ist
+    sehr langsam (linear).
+    \\\textbf{Idee:} Benutze zusätzlich zur vorgeschlagenen Transformation einen
+    \emph{Shift} $\mu_k$:
+    \begin{enumerate}
+        \item setze $H_0 = H$ und $k = 0$
+        \item\label{qr-shift-2} zerlege $H_k - \mu_k I_N = Q_k R_k$
+        \item berechne $H_{k + 1} = R_k Q_k + \mu_k I_N$, erhöhe $k$ um 1 und
+        gehe zu \ref{qr-shift-2}.
+        \begin{itemize}
+            \item \textbf{Abbruch:} TODO
+            \item \textbf{Konvergenz:}
+            \begin{itemize}
+                \item Wenn $\delta^2 \ll a^2$, dann $O(\delta^2)$ (quadratisch)
+                \item Wenn $H = H^T$, dann $O(\delta^3)$ (kubisch) 
+            \end{itemize}
+        \end{itemize}
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Satz 32:} Eine Matrix $A \in \mathbb{R}^{N \times N}$ kann durch $N - 2$
+Householder-Transformationen auf Hessebergform gebracht werden:
+$Q^T A Q = H =
+\begin{pmatrix}
+    * & * & \dots & *\\
+    * & * & \dots & *\\
+      & \ddots & \ddots & \vdots\\
+      &   & *     & *
+\end{pmatrix}
+$
+mit $Q = Q_2 \dots Q_{N - 1}$, wobei $Q_n$ für $n = 2, \dots, N - 1$
+Householder-Transformationen sind. Ist $A$ symmetrisch, so ist $H$ eine
+Tridiagonalmatrix.
+
+\textbf{Satz 33} und \textbf{Satz 34} formalisieren die oben genannten Ideen und
+Eigenschaften: \textbf{Satz 33} beschreibt die Formerhaltung der Hessebergform
+im Algorithmus und \textbf{Satz 34} macht Aussagen über die schnelle Konvergenz,
+wenn ein Shift benutzt wird.
+
+\textbf{Bemerkung:} Der QR-Algorithmus wird unter anderem bei der
+Singulärwertberechnung verwendet.
 
 \end{document}
